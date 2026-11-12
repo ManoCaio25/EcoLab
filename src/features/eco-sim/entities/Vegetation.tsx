@@ -1,42 +1,47 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Color, InstancedMesh, Object3D } from 'three';
-import { Blocks, type Block } from './Building';
-
-const TREES = [
-  [-21, -13, 1.15], [-21, -7, 1.1], [-21, -1, 1.3], [-21, 5, 1.2], [-21, 12, 1],
-  [-15, 16, 1.1], [-9, 16, 1.2], [-3, 16, 1.05], [1, 16, 0.9],
-  [-14, -16, 1.2], [-8, -16, 1], [-2, -16, 1.1], [1, -16, 0.9],
-  [21, -13, 1.1], [21, -6, 1.1], [21, 1, 1.25], [21, 8, 1], [20, 15, 1.15],
-  [11, 16, 1], [15, -16, 1.2], [10, -16, 0.9],
-  [-3, 4, 0.8], [0.4, 4.6, 0.85], [0.6, -4.3, 0.8], [10.3, 3.5, 0.95],
-] as const;
-
-export function Vegetation({ color }: { color: string }) {
-  const crowns = useRef<InstancedMesh>(null);
-  const trunks = useMemo<Block[]>(() => TREES.map(([x, z, s]) => ({ position: [x, 0.8 * s, z], size: [0.21 * s, 1.6 * s, 0.21 * s], color: '#77644d' })), []);
-  useLayoutEffect(() => {
-    if (!crowns.current) return;
-    const object = new Object3D();
-    const tint = new Color();
-    TREES.forEach(([x, z, s], i) => {
-      for (let j = 0; j < 3; j++) {
-        object.position.set(x + (j === 1 ? -0.42 : j === 2 ? 0.45 : 0) * s, (j === 0 ? 2.5 : 2.04) * s, z + (j === 2 ? 0.3 : -0.15) * s);
-        object.scale.set(0.98 * s, (j === 0 ? 1.18 : 0.9) * s, 0.91 * s);
-        object.rotation.set(0, i * 2.4 + j, 0.1 * j);
-        object.updateMatrix();
-        crowns.current!.setMatrixAt(i * 3 + j, object.matrix);
-        tint.set(color).multiplyScalar(0.82 + ((i + j) % 4) * 0.095);
-        crowns.current!.setColorAt(i * 3 + j, tint);
+import { TREES } from '../config/urbanLayout';
+import type { Quality } from '../types';
+export function Vegetation({color,paused,quality}:{color:string;paused:boolean;quality:Quality}) {
+  const crowns=useRef<InstancedMesh>(null),trunks=useRef<InstancedMesh>(null);
+  const time=useRef(0);
+  const object=useMemo(()=>new Object3D(),[]);
+  const updateCrowns=(wind:number)=>{
+    if(!crowns.current) return;
+    TREES.forEach(([x,z,s],i)=>{
+      const sway=Math.sin(wind*.7+i*1.7)*.035;
+      for(let j=0;j<4;j++){
+        object.position.set(x+(j===1?-.53:j===2?.5:0)*s+sway,(j===0?3.05:j===3?2.8:2.45)*s,z+(j===3?.62:j===2?.24:-.22)*s);
+        object.scale.set((j===0?1.05:.85)*s,(j===0?1.22:.95)*s,.94*s);
+        object.rotation.set(0,i*2.4+j,.1*j);
+        object.updateMatrix();crowns.current!.setMatrixAt(i*4+j,object.matrix);
       }
     });
-    crowns.current.instanceMatrix.needsUpdate = true;
-    if (crowns.current.instanceColor) crowns.current.instanceColor.needsUpdate = true;
+    crowns.current.instanceMatrix.needsUpdate=true;
+  };
+  useLayoutEffect(()=>{
+    if(!crowns.current||!trunks.current)return;
+    const tint=new Color();
+    TREES.forEach(([x,z,s],i)=>{
+      object.position.set(x,1.15*s,z);object.scale.set(.16*s,2.3*s,.16*s);object.rotation.set(0,i,0);object.updateMatrix();
+      trunks.current!.setMatrixAt(i,object.matrix);
+      for(let j=0;j<4;j++) crowns.current!.setColorAt(i*4+j,tint.set(color).multiplyScalar(.8+((i+j)%4)*.085));
+    });
+    trunks.current.instanceMatrix.needsUpdate=true;
+    updateCrowns(time.current);
+    if(crowns.current.instanceColor)crowns.current.instanceColor.needsUpdate=true;
     crowns.current.computeBoundingSphere();
-  }, [color]);
+    if(crowns.current.boundingSphere)crowns.current.boundingSphere.radius+=.1;
+    trunks.current.computeBoundingSphere();
+  },[color,object,quality]);
+  useFrame((_,delta)=>{
+    if(paused||document.hidden)return;
+    time.current+=delta;
+    updateCrowns(time.current);
+  });
   return <group>
-    <Blocks items={trunks} />
-    <instancedMesh ref={crowns} args={[undefined, undefined, TREES.length * 3]} castShadow receiveShadow>
-      <icosahedronGeometry args={[1, 1]} /><meshStandardMaterial roughness={1} />
-    </instancedMesh>
+    <instancedMesh ref={trunks} args={[undefined,undefined,TREES.length]} castShadow receiveShadow><cylinderGeometry args={[.72,1,1,8]}/><meshStandardMaterial color="#6c5b45" roughness={1}/></instancedMesh>
+    <instancedMesh ref={crowns} args={[undefined,undefined,TREES.length*4]} castShadow receiveShadow><icosahedronGeometry args={[1,quality==='high'?2:1]}/><meshStandardMaterial roughness={.95}/></instancedMesh>
   </group>;
 }

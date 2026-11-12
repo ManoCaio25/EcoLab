@@ -1,5 +1,5 @@
 import { Button, FormControlLabel, MenuItem, Select, Switch, Tooltip, IconButton } from '@mui/material';
-import type { Quality } from '../types';
+import type { CameraMode, Quality } from '../types';
 import type { CameraCommand } from '../scene/CameraRig';
 
 export function Icon({ name, size = 20 }: { name: 'pause' | 'play' | 'reset' | 'plus' | 'minus' | 'leaf' | 'layers' | 'arrow' | 'sun'; size?: number }) {
@@ -22,11 +22,17 @@ interface Props {
   quality: Quality; setQuality: (value: Quality) => void;
   debug: boolean; setDebug: (value: boolean) => void;
   camera: (action: CameraCommand['action']) => void;
+  mode: CameraMode; setMode: (mode:CameraMode)=>void;
 }
 
-export function SimulationControls({ paused, setPaused, quality, setQuality, debug, setDebug, camera }: Props) {
+export function SimulationControls({ paused, setPaused, quality, setQuality, debug, setDebug, camera, mode, setMode }: Props) {
   return <aside className="control-panel" aria-label="Controles da cidade">
     <div className="panel-heading"><span className="eyebrow">CONTROLE DA CENA</span><Icon name="layers" size={17} /></div>
+    <div className="camera-mode-buttons" role="group" aria-label="Modo de câmera">
+      <Button fullWidth variant={mode==='overview'?'contained':'outlined'} aria-pressed={mode==='overview'} onClick={()=>setMode('overview')}>Visão geral</Button>
+      <Button fullWidth variant={mode==='explore'?'contained':'outlined'} aria-pressed={mode==='explore'} onClick={()=>setMode('explore')}>Explorar cidade</Button>
+    </div>
+    <div className="control-divider" />
     <div className="control-state"><span className={`status-dot ${paused ? 'paused' : ''}`} />{paused ? 'Animação pausada' : 'Cidade em movimento'}</div>
     <Button fullWidth variant="contained" className="pause-button" startIcon={<Icon name={paused ? 'play' : 'pause'} size={16} />} onClick={() => setPaused(!paused)}>
       {paused ? 'Continuar animação' : 'Pausar animação'}
@@ -37,8 +43,8 @@ export function SimulationControls({ paused, setPaused, quality, setQuality, deb
       <MenuItem value="high">Alta · com sombras</MenuItem><MenuItem value="low">Reduzida · mais leve</MenuItem>
     </Select>
     <FormControlLabel className="fps-switch" label="Exibir FPS" labelPlacement="start" control={<Switch size="small" checked={debug} onChange={event => setDebug(event.target.checked)} slotProps={{ input: { 'aria-label': 'Exibir FPS' } }} />} />
-    <Button fullWidth variant="outlined" color="inherit" startIcon={<Icon name="reset" size={16} />} onClick={() => camera('reset')}>Redefinir câmera</Button>
-    <div className="camera-help">Arraste para girar <br />Use a rolagem para aproximar</div>
+    <Button fullWidth variant="outlined" color="inherit" startIcon={<Icon name="reset" size={16} />} onClick={() => camera('reset')}>{mode==='explore'?'Voltar à visão geral':'Redefinir câmera'}</Button>
+    <div className="camera-help">{mode==='overview'?<>Arraste para girar<br/>Use a rolagem para aproximar</>:<>W A S D para caminhar<br/>Clique na cena e mova o mouse para olhar<br/>Se necessário, arraste para olhar<br/>Esc para voltar à visão geral</>}</div>
   </aside>;
 }
 

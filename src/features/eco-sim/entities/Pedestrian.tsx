@@ -11,20 +11,22 @@ export function Pedestrian({ index, paused }: { index: number; paused: boolean }
   const { group, motion } = useRouteFollower(route, config.speed, config.offset, paused, stop);
   const body = useRef<Group>(null);
   const limbs = useRef<Group>(null);
-  useFrame(() => {
+  const amplitude = useRef(1);
+  useFrame((_, delta) => {
+    if (!paused && !document.hidden) amplitude.current += ((motion.wait > 0 ? 0 : 1) - amplitude.current) * (1-Math.exp(-delta*10));
     const phase = motion.travelled * 7;
-    const swing = motion.wait > 0 ? 0 : Math.sin(phase) * 0.55;
+    const swing = Math.sin(phase) * 0.48 * amplitude.current;
     if (limbs.current) {
       limbs.current.children[0].rotation.x = swing;
       limbs.current.children[1].rotation.x = -swing;
       limbs.current.children[2].rotation.x = -swing * 0.8;
       limbs.current.children[3].rotation.x = swing * 0.8;
     }
-    if (body.current) body.current.position.y = motion.wait > 0 ? 0 : Math.abs(Math.sin(phase)) * 0.025;
+    if (body.current) body.current.position.y = Math.abs(Math.sin(phase)) * .018 * amplitude.current;
   });
-  return <group ref={group}>
+  return <group ref={group} name={`pedestrian-${index}`}>
     <group ref={body}>
-      <mesh position={[0, 1.02, 0]} castShadow><boxGeometry args={[0.38, 0.5, 0.24]} /><meshStandardMaterial color={config.color} roughness={0.95} /></mesh>
+      <mesh position={[0, 1.02, 0]} scale={[1,1,.67]} castShadow><capsuleGeometry args={[.19,.22,4,10]} /><meshStandardMaterial color={config.color} roughness={0.95} /></mesh>
       <mesh position={[0, 1.46, 0.015]} castShadow><sphereGeometry args={[0.19, 10, 8]} /><meshStandardMaterial color={config.skin} roughness={1} /></mesh>
       <mesh position={[0, 1.55, -0.03]} castShadow><sphereGeometry args={[0.19, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.6]} /><meshStandardMaterial color="#493d36" /></mesh>
       <mesh position={[0, 1.02, -0.17]} castShadow><boxGeometry args={[0.27, 0.32, 0.13]} /><meshStandardMaterial color="#4a6264" /></mesh>
