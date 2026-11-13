@@ -135,3 +135,29 @@ h1 span { color: #9ce5b8; }
   .exploring .metrics { top: auto; }
   .camera-mode-buttons .MuiButton-root { grid-column: auto; grid-row: auto; margin-top: 0; }
 }
+/* Final visual base: the city occupies the presentation, places stay one click away. */
+@media (min-width: 761px) {
+  .scene-viewport { left: 234px; right: 222px; top: 55px; bottom: 100px; }
+  .scene-intro { left: 22px; top: 26px; }.scene-intro h1 { font-size: 25px; margin: 12px 0; }
+  .scene-intro p { font-size: 10px; }.district-label { margin-top: 14px; }
+  .control-panel { width: 196px; right: 18px; padding: 15px; }
+  .city-places { position: absolute; left: 22px; top: 244px; width: 196px; }
+  .environmental-panel { left: 22px; top: 574px; width: 196px; padding: 12px; max-height: calc(100% - 594px); }
+  .environmental-panel .eyebrow { font-size: 8px; }.environmental-panel .panel-description { margin: 8px 0; font-size: 10px; }
+  .point-option { padding: 7px; font-size: 10px; }.point-option small { font-size: 8px; }
+  .view-tools { left: 252px; right: 240px; top: 19px; }
+  .city-summary { left: 244px; right: 232px; bottom: 20px; min-height: 66px; }
+  .metrics { right: 18px; width: 196px; top: 540px; }
+  .exploring .scene-viewport { inset: 0; }.exploring .city-places { display: none; }
+  .exploring .environmental-panel { top: 28px; max-height: calc(100% - 120px); }
+}
+.place-buttons { display: grid; gap: 6px; margin-top: 12px; }
+.place-buttons button { font: inherit; line-height: 1.25; display: flex; gap: 9px; align-items: center; text-align: left; width: 100%; padding: 8px; border: 1px solid #39534e; border-radius: 8px; background: #132c30eb; color: #e3eadb; cursor: pointer; font-size: 10px; }
+.place-buttons button:hover { background: #25493f; border-color: #99d5b6; }
+.place-buttons small { display: block; font-size: 8px; color: #96afa6; margin-top: 3px; }
+.place-buttons button > span:last-child { margin-left: auto; color: #9ab7a9; }.place-index { font-size: 10px; }
+@media (max-width: 760px) {
+  .city-places { order: 2; }.place-buttons { grid-template-columns: 1fr 1fr; }
+  .scene-viewport { height: 430px; }.scene-intro h1 { font-size: 30px; }
+  .exploring .city-places { display: none; }
+}

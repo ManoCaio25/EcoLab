@@ -5,8 +5,11 @@ import { gzipSync } from 'node:zlib';
 import { readFile } from 'node:fs/promises';
 
 const stage = process.argv.includes('--baseline') ? 'baseline' : 'stage2';
+const capture = process.argv.find(arg => arg.startsWith('--capture='))?.split('=')[1];
 const quick = process.argv.includes('--quick');
-const output = resolve('.local/etapa-2');
+const school = process.argv.includes('--school');
+const output = resolve(school ? '.local/school-pilot' : capture ? '.local/etapa-2-5' : '.local/etapa-2');
+const evidence = capture ?? stage;
 await mkdir(join(output, 'temp'), { recursive: true });
 const browser = spawn('C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', [
   '--headless=new', '--remote-debugging-port=9224', `--user-data-dir=${join(output, 'browser')}`,
@@ -43,7 +46,7 @@ async function screenshot(name) {
   const options={format:'png'};
   if(name==='mobile') { const {cssContentSize}=await send('Page.getLayoutMetrics'); options.captureBeyondViewport=true; options.clip={x:0,y:0,width:cssContentSize.width,height:cssContentSize.height,scale:1}; }
   const result = await send('Page.captureScreenshot', options);
-  await writeFile(join(output, `${stage}-${name}.png`), Buffer.from(result.data, 'base64'));
+  await writeFile(join(output, `${evidence}-${name}.png`), Buffer.from(result.data, 'base64'));
 }
 async function sample() {
   return evaluate(`new Promise(resolve => {
@@ -87,10 +90,16 @@ try {
     if (message.method === 'Network.responseReceived' && message.params.response.status >= 400) failedRequests.push(message.params.response);
   };
   await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable');
+  await send('Network.setCacheDisabled',{cacheDisabled:true});
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
-  await send('Page.navigate', { url: 'http://127.0.0.1:4173' });
-  for (let i = 0; i < 60; i++) { if (await evaluate(`document.querySelector('.model-status')?.textContent.includes('prontos')`)) break; await delay(250); }
+  await send('Page.navigate', { url: 'http://127.0.0.1:4173'+(school?'?review=1':'') });
+  for (let i = 0; i < 240; i++) { if (await evaluate(`document.querySelector('.model-status')?.textContent.includes('prontos')`)) break; await delay(250); }
   check('Cena carregada', await evaluate(`document.querySelector('.model-status')?.textContent.includes('prontos')`));
+  if(school&&evidence!=='before'){
+    const artReady=`(()=>{const detail={};document.querySelector('canvas')?.dispatchEvent(new CustomEvent('ecolab:inspect',{detail}));return detail.schoolArtReady;})()`;
+    for(let i=0;i<240;i++){if(await evaluate(artReady))break;await delay(250);}
+    check('Assets externos da escola carregados',await evaluate(artReady));
+  }
   await click('Exibir FPS'); await delay(3000);
   // Match stage 1's actual drawing area, not just the browser viewport.
   if(stage==='stage2') {
@@ -98,6 +107,7 @@ try {
     await delay(1500);
   }
   const benchmarkCanvas=await evaluate(`(()=>{const c=document.querySelector('canvas');const r=c.getBoundingClientRect();return {cssWidth:r.width,cssHeight:r.height,bufferWidth:c.width,bufferHeight:c.height};})()`);
+  if(school){await click('Visitar Escola das Águas');await delay(1500);}
   const performance = {};
   for (const profile of ['high', 'low']) {
     if (profile === 'low') await quality(true);
@@ -107,6 +117,7 @@ try {
   }
   await quality(false);
   if(stage==='stage2'){await evaluate(`document.querySelector('#benchmark-viewport').remove()`);await delay(600);}
+  if(school){await click('Redefinir câmera');await delay(400);}
   if (stage === 'stage2') {
     const inspect = () => evaluate(`(() => { const detail={}; document.querySelector('canvas').dispatchEvent(new CustomEvent('ecolab:inspect',{detail})); return detail; })()`);
     const initial = await inspect();
@@ -136,6 +147,18 @@ try {
       check(`Enquadramento: ${label}`,(await inspect()).camera.zoom>initial.camera.zoom);
       await screenshot(label==='Córrego do distrito'?'creek':label==='Vila das Águas'?'residential':'park');
     }
+    if(capture && capture!=='before'){
+      check('Atalhos visíveis e livres de sobreposição',await evaluate(`Array.from(document.querySelectorAll('.place-buttons button')).every(button=>{const r=button.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('button')===button;})`));
+      for(const [id,label] of [['school','Escola das Águas'],['canal','Passeio do Córrego'],['village','Vila das Águas'],['market','Rua do Mercado'],['health','Unidade de Saúde'],['park','Parque das Nascentes']]){
+        const target=await evaluate(`(()=>{const b=document.querySelector('[aria-label="Visitar ${label}"]').getBoundingClientRect();return {x:b.x+b.width/2,y:b.y+b.height/2};})()`);
+        await send('Input.dispatchMouseEvent',{type:'mousePressed',...target,button:'left',clickCount:1});
+        await send('Input.dispatchMouseEvent',{type:'mouseReleased',...target,button:'left',clickCount:1});await delay(400);
+        const view=await inspect();
+        check(`Visita rápida: ${label}`,view.camera.type==='OrthographicCamera'&&view.camera.zoom>initial.camera.zoom);
+        await screenshot(id);
+      }
+      check('Vinte civis e quatro veículos na cena',(await inspect()).actors.length===24);
+    }
     await click('Redefinir câmera');await delay(400);
     await click('Pausar animação');await delay(300);
     const beforePause=await inspect();
@@ -143,10 +166,14 @@ try {
     const pausedImage=(await send('Page.captureScreenshot',{format:'png',clip:rect})).data;
     await delay(700);
     const afterPause=await inspect();
-    check('Pausa preserva posições dos cinco agentes',JSON.stringify(beforePause.actors)===JSON.stringify(afterPause.actors));
+    check('Pausa preserva posições de todos os agentes',JSON.stringify(beforePause.actors)===JSON.stringify(afterPause.actors));
     check('Pausa congela água e vegetação',pausedImage===(await send('Page.captureScreenshot',{format:'png',clip:rect})).data);
-    await click('Continuar animação');await delay(600);
+    await click('Continuar animação');await delay(3600);
     check('Movimento retomado',JSON.stringify((await inspect()).actors)!==JSON.stringify(afterPause.actors));
+    if(capture && capture!=='before'){
+      const resumed=await inspect();
+      check('Todos os civis e veículos retomam movimento',resumed.actors.every((actor,i)=>actor.position?.every(Number.isFinite)&&Math.hypot(...actor.position.map((n,j)=>n-afterPause.actors[i].position[j]))>.01));
+    }
     const memoryBefore=(await inspect()).memory;
     await click('Explorar cidade');await delay(500);
     const start=await inspect();
@@ -182,12 +209,26 @@ try {
     await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await delay(500);
     await screenshot('desktop');
   }
+  const reviewFrames=[];
+  if(school){
+    await click('Pausar animação');await delay(400);
+    for(const [name,kind,position,target] of [
+      ['fixed-isometric','orthographic',[19,30,57],[-14,0,21]],
+      ['fixed-facade','perspective',[-13,2.6,27],[-23,1.8,21]],
+      ['fixed-canal','perspective',[10,2.6,26],[-7,1.6,22]],
+    ]){
+      const frame=await evaluate(`(()=>{const detail=${JSON.stringify({kind,position,target})};document.querySelector('canvas').dispatchEvent(new CustomEvent('ecolab:review',{detail}));return detail;})()`);
+      if(!frame.png)throw Error('Captura comparável indisponível');
+      await writeFile(join(output,`${evidence}-${name}.png`),Buffer.from(frame.png.split(',')[1],'base64'));
+      delete frame.png;reviewFrames.push({name,...frame});
+    }
+  }
   const hardware = await evaluate(`(() => { const canvas=document.querySelector('canvas'); const gl=canvas.getContext('webgl2'); const ext=gl.getExtension('WEBGL_debug_renderer_info'); return { renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), userAgent:navigator.userAgent, dpr:devicePixelRatio }; })()`);
   check('Console sem erros', errors.length === 0, errors);
   check('Carregamento sem falhas', failedRequests.length === 0, failedRequests);
-  const report = { stage, quick, measuredAt: new Date().toISOString(), viewport: [1440,1000], benchmarkCanvas, sampleSeconds:quick?.5:10, samplesPerProfile:quick?1:3, hardware, performance, checks, build: await buildSizes(resolve('dist')) };
-  await writeFile(join(output, `${stage}${quick?'-quick':''}-results.json`), JSON.stringify(report, null, 2));
-  console.log(JSON.stringify({ stage, checks, performance }, null, 2));
+  const report = { stage:evidence, quick, school, reviewFrames, measuredAt: new Date().toISOString(), viewport: [1440,1000], benchmarkCanvas, sampleSeconds:quick?.5:10, samplesPerProfile:quick?1:3, hardware, performance, checks, build: await buildSizes(resolve('dist')) };
+  await writeFile(join(output, `${evidence}${quick?'-quick':''}-results.json`), JSON.stringify(report, null, 2));
+  console.log(JSON.stringify({ stage:evidence,checks:checks.length,failed:checks.filter(c=>!c.passed),performance:Object.fromEntries(Object.entries(performance).map(([key,rows])=>[key,rows.map(({fps,p95ms,diagnostics})=>({fps,p95ms,render:diagnostics?.render}))])) }, null, 2));
   if (checks.some(c => !c.passed)) process.exitCode = 1;
 } finally {
   if (socket?.readyState === WebSocket.OPEN) { try { await send('Browser.close'); } catch {} socket.close(); }

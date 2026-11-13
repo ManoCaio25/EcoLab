@@ -30,8 +30,14 @@ export function Water({paused,color,segments}:{paused:boolean;color:string;segme
         vec3 light=normalize(vec3(-.5,1.,.4));
         float spec=pow(max(dot(normal,normalize(view+light)),0.),180.);
         float edge=pow(abs(vUv.x*2.-1.),12.);
-        vec3 water=mix(tint*.65,vec3(.43,.62,.66),fresnel*.75);
-        water+=spec*.48+wave*.008+edge*vec3(.055,.065,.025);
+        vec3 water=mix(tint*.78,vec3(.53,.73,.76),fresnel*.65);
+        float current=pow(max(0.,sin(vWorld.z*5.-time*.65+sin(vWorld.x*7.)*.4)),22.);
+        water+=spec*.36+wave*.012+current*.022+edge*vec3(.07,.09,.025);
+        float pilot=smoothstep(13.3,14.5,vWorld.z);
+        vec3 natural=mix(vec3(.055,.115,.083),vec3(.43,.57,.60),fresnel*.85);
+        natural+=spec*.5+sin(vWorld.x*33.+vWorld.z*19.+time)*.005;
+        natural*=1.-edge*.28;
+        water=mix(water,natural,pilot);
         gl_FragColor=vec4(water,1.);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>

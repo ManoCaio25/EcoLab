@@ -1,4 +1,5 @@
 import { BUILDINGS, CITY } from '../config/city';
+import { URBAN_SURFACES } from '../config/urbanLayout';
 import type { Surface } from '../types';
 import { sampleRoute, type Route } from './route';
 
@@ -15,6 +16,7 @@ export function isAllowedSurface(x: number, y: number, z: number, surface: Surfa
   if (Math.abs(y - expectedHeight) > 0.015) return false;
   if (x > canal.minX && x < canal.maxX && !bridges.some(b => z >= b.minZ && z <= b.maxZ)) return false;
   if (BUILDINGS.some(b => Math.abs(x - b.x) <= b.width / 2 && Math.abs(z - b.z) <= b.depth / 2)) return false;
+  if (URBAN_SURFACES.some(s => (surface === 'road' ? s.kind === 'road' : s.kind !== 'road') && Math.abs(s.height-y)<.015 && x>=s.bounds.minX && x<=s.bounds.maxX && z>=s.bounds.minZ && z<=s.bounds.maxZ)) return true;
   if (surface === 'road') return Math.abs(roundedBoxDistance(x, z, road.halfX, road.halfZ, road.radius)) <= road.halfWidth + 1e-6;
   return roundedBoxDistance(x, z, sidewalk.outerX, sidewalk.outerZ, sidewalk.radius) <= 1e-6 &&
     roundedBoxDistance(x, z, sidewalk.innerX, sidewalk.innerZ, sidewalk.radius) >= -1e-6;

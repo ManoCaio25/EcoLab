@@ -1,0 +1,394 @@
+{
+  "generatedAt": "2026-11-13T02:10:21.556Z",
+  "models": [
+    {
+      "file": "tree.glb",
+      "source": "island_tree_02",
+      "url": "https://polyhaven.com/a/island_tree_02",
+      "license": "CC0-1.0",
+      "triangles": 56896,
+      "bytes": 5187160,
+      "sha256": "a87f556176022422716309cdeaf3535505c49ae382ef26a8ab938cd5e77000f8",
+      "nodes": [
+        {
+          "name": "island_tree_02_LOD0",
+          "bounds": {
+            "min": [
+              -2.052337884902954,
+              -0.01397637277841568,
+              -1.1138885021209717
+            ],
+            "max": [
+              2.155407428741455,
+              3.3892130851745605,
+              2.956543207168579
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "tree-low.glb",
+      "source": "island_tree_02",
+      "url": "https://polyhaven.com/a/island_tree_02",
+      "license": "CC0-1.0",
+      "triangles": 21212,
+      "bytes": 2015516,
+      "sha256": "6958e892b94ab8d597a6c7734be0d51d6379d7c9b1592cc9070475c1685587b9",
+      "nodes": [
+        {
+          "name": "island_tree_02_LOD0",
+          "bounds": {
+            "min": [
+              -1.9902251958847046,
+              -0.011095196008682251,
+              -1.1138885021209717
+            ],
+            "max": [
+              2.0611910820007324,
+              3.3892130851745605,
+              2.929218292236328
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "shrub.glb",
+      "source": "shrub_01",
+      "url": "https://polyhaven.com/a/shrub_01",
+      "license": "CC0-1.0",
+      "triangles": 12388,
+      "bytes": 804248,
+      "sha256": "7943903739b3ab6594dc837065594b73d834a428db6b8636b0765678d0747ce5",
+      "nodes": [
+        {
+          "name": "shrub_01_a",
+          "bounds": {
+            "min": [
+              -1.854261338710785,
+              -0.008752564899623394,
+              -0.11360818892717361
+            ],
+            "max": [
+              0.7318415492773056,
+              0.3867427706718445,
+              0.1046035960316658
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "grass.glb",
+      "source": "grass_medium_02",
+      "url": "https://polyhaven.com/a/grass_medium_02",
+      "license": "CC0-1.0",
+      "triangles": 2351,
+      "bytes": 229452,
+      "sha256": "6100aa832c222dc2f5259893b78963a870e5571d5fac6720918e24d5a6b3a387",
+      "nodes": [
+        {
+          "name": "grass_medium_02_a",
+          "bounds": {
+            "min": [
+              -0.054376713931560516,
+              -0.002734741661697626,
+              -0.056573495268821716
+            ],
+            "max": [
+              0.06275848299264908,
+              0.15261663496494293,
+              0.06318891793489456
+            ]
+          }
+        },
+        {
+          "name": "grass_medium_02_b",
+          "bounds": {
+            "min": [
+              0.1457817442715168,
+              -0.0040363832376897335,
+              -0.10432268679141998
+            ],
+            "max": [
+              0.3247569799423218,
+              0.1737852841615677,
+              0.09089668095111847
+            ]
+          }
+        },
+        {
+          "name": "grass_medium_02_c",
+          "bounds": {
+            "min": [
+              0.3496382236480713,
+              -0.005509789101779461,
+              -0.1609298586845398
+            ],
+            "max": [
+              0.6082886084914207,
+              0.226151704788208,
+              0.08858048170804977
+            ]
+          }
+        },
+        {
+          "name": "grass_medium_02_d",
+          "bounds": {
+            "min": [
+              0.6086260378360748,
+              -0.005133261438459158,
+              -0.15373073518276215
+            ],
+            "max": [
+              0.9224381148815155,
+              0.2552432417869568,
+              0.20751336216926575
+            ]
+          }
+        },
+        {
+          "name": "grass_medium_02_e",
+          "bounds": {
+            "min": [
+              0.8994961380958557,
+              -0.0028151916339993477,
+              -0.1754019558429718
+            ],
+            "max": [
+              1.2537327259778976,
+              0.3998044431209564,
+              0.25717946887016296
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "bench.glb",
+      "source": "painted_wooden_bench",
+      "url": "https://polyhaven.com/a/painted_wooden_bench",
+      "license": "CC0-1.0",
+      "triangles": 630,
+      "bytes": 318672,
+      "sha256": "4c60f3c0eecc396c50372cc37c6d0cdc5a308bc6d438015d9598ee2f2e1e80a2",
+      "nodes": [
+        {
+          "name": "painted_wooden_bench",
+          "bounds": {
+            "min": [
+              -0.5760610699653625,
+              -0.0004994967021048069,
+              -0.25369879603385925
+            ],
+            "max": [
+              0.5888825058937073,
+              0.8887919783592224,
+              0.24284429848194122
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "fence.glb",
+      "source": "modular_chainlink_fence",
+      "url": "https://polyhaven.com/a/modular_chainlink_fence",
+      "license": "CC0-1.0",
+      "triangles": 1671,
+      "bytes": 946712,
+      "sha256": "e906cfbb002865a894c178ad709fe845b1183b08a808c2452b4beb4010862d31",
+      "nodes": [
+        {
+          "name": "modular_chainlink_fence_double",
+          "bounds": {
+            "min": [
+              -1.9520267248153687,
+              0.05999995768070221,
+              -0.023189209401607513
+            ],
+            "max": [
+              -0.03797447681427002,
+              2.430000066757202,
+              0.024936016649007797
+            ]
+          }
+        },
+        {
+          "name": "modular_chainlink_fence_post",
+          "bounds": {
+            "min": [
+              -1.0747090578079224,
+              0.000012452597729861736,
+              -1.0747011080384254
+            ],
+            "max": [
+              -0.925298422574997,
+              2.522132396697998,
+              -0.9278359785676003
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "file": "facade.glb",
+      "source": "modular_factory_facade",
+      "url": "https://polyhaven.com/a/modular_factory_facade",
+      "license": "CC0-1.0",
+      "triangles": 4898,
+      "bytes": 1814252,
+      "sha256": "f1d608d5c5e5d371aa21af36fd597b012e0bf07b3d396cfe2c9b0fb633790ca3",
+      "nodes": [
+        {
+          "name": "window_centered_large_01",
+          "bounds": {
+            "min": [
+              0.3900017738342285,
+              4.590305805206299,
+              -0.18666668236255646
+            ],
+            "max": [
+              2.6099982261657715,
+              6.334999084472656,
+              0.0299999862909317
+            ]
+          }
+        },
+        {
+          "name": "base_standard_standard_01",
+          "bounds": {
+            "min": [
+              -20,
+              -2,
+              0
+            ],
+            "max": [
+              -17,
+              -1.25,
+              0.20000000298023224
+            ]
+          }
+        },
+        {
+          "name": "cornice01_standard_standard_01",
+          "bounds": {
+            "min": [
+              -20.000003576278687,
+              6.000262200832367,
+              -0.10041344165802002
+            ],
+            "max": [
+              -16.999996423721313,
+              6.152247741818428,
+              0.06778641045093536
+            ]
+          }
+        },
+        {
+          "name": "wall_standard_standard_01",
+          "bounds": {
+            "min": [
+              -20,
+              0,
+              0
+            ],
+            "max": [
+              -17,
+              3,
+              0
+            ]
+          }
+        },
+        {
+          "name": "wall_door_centered_large_01",
+          "bounds": {
+            "min": [
+              15.999998092651367,
+              0,
+              0
+            ],
+            "max": [
+              18.999998092651367,
+              3,
+              0
+            ]
+          }
+        },
+        {
+          "name": "wall_window_centered_large_01",
+          "bounds": {
+            "min": [
+              -0.000003814697265625,
+              4,
+              -0.20000000298023224
+            ],
+            "max": [
+              3,
+              6.999999523162842,
+              0
+            ]
+          }
+        },
+        {
+          "name": "door_centered_large_01",
+          "bounds": {
+            "min": [
+              16.6000018119812,
+              0,
+              -0.205000102519989
+            ],
+            "max": [
+              18.399998247623444,
+              2.3299994468688965,
+              0.030000001192092896
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "red_brick",
+      "url": "https://polyhaven.com/a/red_brick",
+      "license": "CC0-1.0",
+      "maps": [
+        "color",
+        "normal",
+        "arm"
+      ]
+    },
+    {
+      "id": "asphalt_02",
+      "url": "https://polyhaven.com/a/asphalt_02",
+      "license": "CC0-1.0",
+      "maps": [
+        "color",
+        "normal",
+        "arm"
+      ]
+    },
+    {
+      "id": "concrete_pavement",
+      "url": "https://polyhaven.com/a/concrete_pavement",
+      "license": "CC0-1.0",
+      "maps": [
+        "color",
+        "normal",
+        "arm"
+      ]
+    },
+    {
+      "id": "brown_mud_leaves_01",
+      "url": "https://polyhaven.com/a/brown_mud_leaves_01",
+      "license": "CC0-1.0",
+      "maps": [
+        "color",
+        "normal",
+        "arm"
+      ]
+    }
+  ]
+}

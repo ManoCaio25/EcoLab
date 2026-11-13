@@ -18,6 +18,8 @@ describe('superfícies e trajetórias da cidade', () => {
     expect(isAllowedSurface(5.5, CITY.sidewalk.height, -7.5, 'sidewalk')).toBe(true);
     expect(isAllowedSurface(5.5, CITY.road.height, 0, 'road')).toBe(false);
     expect(isAllowedSurface(5.5, CITY.sidewalk.height, 0, 'sidewalk')).toBe(false);
+    expect(isAllowedSurface(5.5, CITY.road.height, -19, 'road')).toBe(true);
+    expect(isAllowedSurface(5.5, CITY.road.height, -24, 'road')).toBe(false);
   });
   it('rejeita prédios, gramados, superfícies trocadas e alturas incorretas', () => {
     for (const b of BUILDINGS) expect(isAllowedSurface(b.x, CITY.road.height, b.z, 'road')).toBe(false);
@@ -32,7 +34,7 @@ describe('superfícies e trajetórias da cidade', () => {
     expect(validateRoute(invalid, 'road', 0.54, 1.1).length).toBeGreaterThan(0);
   });
   it('os dois veículos realmente cruzam as duas pontes', () => {
-    for (const route of VEHICLE_ROUTES) {
+    for (const route of VEHICLE_ROUTES.slice(0,2)) {
       const crossings = new Set<string>();
       for (let distance = 0; distance < route.length; distance += 0.1) {
         const point = sampleRoute(route, distance);

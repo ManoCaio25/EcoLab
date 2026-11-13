@@ -37,6 +37,7 @@ export function Building({ index }: { index: number }) {
   const building = BUILDINGS[index];
   const { solid, glass } = useMemo(() => {
     const { width: w, depth: d, height: h, color, accent } = building;
+    const kind=building.kind ?? (index>=4?'house':index===2?'library':index===3?'shop':'apartment');
     const solid: Block[] = [];
     const glass: Block[] = [];
     const add = (position: Block['position'], size: Block['size'], color: string) => solid.push({ position, size, color });
@@ -83,9 +84,35 @@ export function Building({ index }: { index: number }) {
     add([0, 2.25, d / 2 + 0.5], [1.8, 0.12, 1.05], accent);
     for(let y=.45;y<h-.5;y+=.42) add([0,y,-d/2-.02],[w,.014,.015],'#b0b2a4');
     for(const x of [-w/2+.18,w/2-.18]) add([x,h/2,d/2+.04],[.1,h,.09],'#e1decf');
-    if(index>=4) {
+    if(kind==='house') {
       for(let i=0;i<6;i++) add([0,h+.34+i*.095,0],[w+.25-i*.52,.12,d+.25],'#8b7160');
       add([-.9,h+.62,-.9],[.38,.85,.42],'#b4a18c');
+    }
+    if(kind==='apartment')for(let floor=1;floor<floors;floor++){
+      add([0,floor*2.7+.1,d/2+.32],[w-.5,.12,.7],'#e4dfcc');
+      add([0,floor*2.7+.6,d/2+.65],[w-.5,.06,.06],accent);
+      for(let x=-w/2+.4;x<w/2-.2;x+=.45)add([x,floor*2.7+.36,d/2+.65],[.035,.5,.035],accent);
+    }
+    if(kind==='shop'||kind==='market'){
+      for(let x=-w/2+.65;x<w/2-.4;x+=1.2){
+        glass.push({position:[x,1.1,d/2+.09],size:[1,1.7,.04],color:'#335c68'});
+        add([x,2.35,d/2+.5],[1.16,.12,.95],Math.round(x*10)%2?'#e9dcb8':accent);
+      }
+      add([0,2.82,d/2+.08],[w-.4,.55,.12],accent);
+
+    }
+    if(kind==='clinic'){
+      add([0,h-.65,d/2+.09],[w,.9,.1],accent);
+      add([-w/2+.8,h-.65,d/2+.16],[.16,.65,.08],'#eef4df');
+      add([-w/2+.8,h-.65,d/2+.16],[.6,.16,.08],'#eef4df');
+      add([0,2.5,d/2+.7],[3.6,.18,1.5],accent);
+
+    }
+    if(kind==='school'){
+      add([0,h+.12,0],[w+.55,.25,d+.55],'#ca8156');
+      add([0,2.8,d/2+.12],[w-.4,.65,.18],accent);
+      add([0,2.35,d/2+.35],[w+.1,.16,.8],'#64a7a0');
+      for(let x=-w/2+.3;x<w/2;x+=1.8)add([x,1.2,d/2+.65],[.13,2.4,.13],Math.round(x)%2?'#dc9a51':'#5c9ca1');
     }
     add([0, 0.09, d / 2 + 0.55], [1.8, 0.18, 1.1], '#c4c7ba');
     if (index === 2) { // Library colonnade.

@@ -5,6 +5,9 @@ import { PLANTERS, URBAN_SURFACES } from '../config/urbanLayout';
 import { Building, Blocks, type Block } from '../entities/Building';
 import { Vegetation } from '../entities/Vegetation';
 import { StreetFurniture } from '../entities/StreetFurniture';
+import { SchoolCampus } from '../entities/SchoolCampus';
+import { SchoolArtRegion } from './SchoolArtRegion';
+import { PlaceLabels } from './PlaceLabels';
 import type { Quality } from '../types';
 function rounded<T extends Path>(path:T,x:number,z:number,r:number):T {
   path.moveTo(-x+r,-z);
@@ -29,7 +32,10 @@ export function CityEnvironment({vegetationColor,paused,quality}:{vegetationColo
       add([(left+right)/2,-.035,0],[right-left,.09,d*2],'#899879');
     }
     add([5.5,-1.05,0],[5,1.1,d*2],'#3d5550');
-    for(const x of [2.85,8.15]) for(const [start,end] of [[-d,-13.2],[-6.4,6.4],[13.2,d]]) {
+    const banks:number[][]=[];let bankStart=-d;
+    for(const bridge of [...CITY.bridges].sort((a,b)=>a.minZ-b.minZ)){banks.push([bankStart,bridge.minZ]);bankStart=bridge.maxZ;}
+    banks.push([bankStart,d]);
+    for(const x of [2.85,8.15]) for(const [start,end] of banks) {
       add([x,-.17,(start+end)/2],[.3,.9,end-start],'#9da99b');
       for(let z=start+.3;z<end;z+=.65) detail([x,.285,z],[.35,.06,Math.min(.61,end-z)],'#c4c7b5');
       for(let y=-.5;y<.2;y+=.24) detail([x,-.02+y,(start+end)/2],[.307,.018,end-start],'#788d84');
@@ -48,6 +54,11 @@ export function CityEnvironment({vegetationColor,paused,quality}:{vegetationColo
       const b=s.bounds;
       add([(b.minX+b.maxX)/2,s.height/2-.0006,(b.minZ+b.maxZ)/2],[b.maxX-b.minX,s.height,b.maxZ-b.minZ],s.kind==='road'?'#4d5758':s.kind==='plaza'?'#b8b6a0':'#c0c1af');
       if(s.kind!=='road') for(let z=b.minZ+.6;z<b.maxZ;z+=.9) detail([(b.minX+b.maxX)/2,s.height+.002,z],[b.maxX-b.minX,.003,.014],'#959f91');
+      if(s.kind==='road'&&s.id!=='rua-vila'&&!s.id.startsWith('acesso-vila')){
+        const horizontal=b.maxX-b.minX>b.maxZ-b.minZ;
+        for(let t=(horizontal?b.minX:b.minZ)+1;t<(horizontal?b.maxX:b.maxZ)-1;t+=2.6)
+          detail([horizontal?t:(b.minX+b.maxX)/2,s.height+.009,horizontal?(b.minZ+b.maxZ)/2:t],horizontal?[1.1,.01,.07]:[.07,.01,1.1],'#e6d9ab');
+      }
     }
     for(let x=-12;x<=12;x+=2.5) for(const z of [-11,11]) detail([x,.148,z],[1.15,.012,.07],'#dedac0');
     for(let z=-6.5;z<=6.5;z+=2.5) for(const x of [-17,17]) detail([x,.148,z],[.07,.012,1.15],'#dedac0');
@@ -60,13 +71,22 @@ export function CityEnvironment({vegetationColor,paused,quality}:{vegetationColo
       add([x,.18,z],[1.65,.36,1.65],'#84917e');
       add([x,.38,z],[1.45,.06,1.45],'#576c46');
     }
-    for(const x of [2.66,8.43]) for(let z=-21;z<22;z+=.7) {
+    for(const x of [2.66,8.43]) for(let z=-d+.5;z<d;z+=.7) {
+      if(z>=13.3)continue; // External grass replaces the pilot's rectangular reeds.
       if(CITY.bridges.some(b=>z>b.minZ-.4&&z<b.maxZ+.4)) continue;
       for(let i=0;i<3;i++) detail([x+(i-1)*.055,.3+(i%2)*.07,z],[.035,.48+(i%2)*.14,.065],i%2?'#889066':'#526d4c');
     }
-    for(const z of [-19.2,19.2]) for(const x of [-12,-6,0,11,16]) {
+    for(const [x,z] of [[-29,20],[-29,25],[11.2,24],[21,25],[29,-14],[22,-12]]) {
       add([x,.12,z],[2.4,.24,.75],'#73845e');
       for(let i=0;i<6;i++) detail([x-.9+i*.35,.3,z],[.12,.12,.16],i%2?'#d2bd83':'#bba495');
+    }
+    for(const z of [-24,-15,0,15,24])for(const x of [2.79,8.22]){
+      if(CITY.bridges.some(b=>z>b.minZ-.5&&z<b.maxZ+.5))continue;
+      detail([x,.78,z],[.045,1,.045],'#607d75');
+    }
+    for(const [start,end] of banks)for(const x of [2.79,8.22]){
+      detail([x,1.22,(start+end)/2],[.045,.055,end-start],'#87a89b');
+      detail([x,.8,(start+end)/2],[.03,.035,end-start],'#87a89b');
     }
     return {blocks,details};
   },[]);
@@ -75,7 +95,9 @@ export function CityEnvironment({vegetationColor,paused,quality}:{vegetationColo
     <Ring outer={[19.35,13.35,5.35]} inner={[14.65,8.65,.65]} y={.09} color="#b0b7a6"/>
     <Ring outer={[19.2,13.2,5.2]} inner={[14.8,8.8,.8]} y={CITY.road.height} color="#4d5758"/>
     <Ring outer={[14.8,8.8,.8]} inner={[12.4,6.4,.8]} y={CITY.sidewalk.height} color="#c2c4b3"/>
-    {BUILDINGS.map((b,i)=><Building key={b.id} index={i}/>)}
+    {BUILDINGS.map((b,i)=>b.id!=='escola'&&<Building key={b.id} index={i}/>)}
+    <SchoolArtRegion quality={quality}/>
+    <SchoolCampus/><PlaceLabels/>
     <StreetFurniture/><Vegetation color={vegetationColor} paused={paused} quality={quality}/>
   </group>;
 }
